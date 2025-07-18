@@ -1,0 +1,3 @@
+#igonring the files to push in github
+node_modules/
+.env
