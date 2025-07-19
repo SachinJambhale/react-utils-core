@@ -18,6 +18,8 @@ import ForgotPassword from "./components/ForgotPassword";
 import { SitemarkIcon } from "./components/CustomIcons";
 import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
+import type { UserDetails } from "../../types/types";
+import { useUserContext } from "../../AuthContext/AuthContext";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -62,6 +64,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignIn(props: { disableCustomTheme?: boolean }) {
+  const { login } = useUserContext();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
@@ -76,17 +79,12 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     setOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    await login?.(data as UserDetails);
   };
+
 
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
@@ -148,7 +146,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleLogin}
             noValidate
             sx={{
               display: "flex",

@@ -17,6 +17,9 @@ import { styled } from "@mui/material/styles";
 import { SitemarkIcon } from "./components/CustomIcons";
 import AppTheme from "../../shared-theme/AppTheme";
 import ColorModeSelect from "../../shared-theme/ColorModeSelect";
+import type { UserDetails } from "../../types/types";
+import { useNavigate } from "react-router-dom";
+import { UserService } from "../../services/AuthServices";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -61,6 +64,7 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignUp(props: { disableCustomTheme?: boolean }) {
+  const navigate = useNavigate();
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
@@ -105,18 +109,18 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
     return isValid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
+  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get("name"),
-      lastName: data.get("lastName"),
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    try {
+      const res = await UserService.register(data as UserDetails);
+      console.log("res",res)
+      alert('Registration successful!');  
+      navigate('/signin');
+    } catch (err) {
+      alert("Registration failed. Please try again.");
+    }
   };
 
   return (
@@ -126,8 +130,15 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
 
       <SignUpContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
-          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 ,justifyContent:"space-between" }}>
-          <SitemarkIcon />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 2,
+              justifyContent: "space-between",
+            }}
+          >
+            <SitemarkIcon />
             <Typography sx={{ textAlign: "center" }}>
               <Link href="/" variant="body2" sx={{ alignSelf: "center" }}>
                 Back to Home
@@ -143,7 +154,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleRegister}
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
             <FormControl>
@@ -210,11 +221,7 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Typography sx={{ textAlign: "center" }}>
               Already have an account?{" "}
-              <Link
-                href="/signin"
-                variant="body2"
-                sx={{ alignSelf: "center" }}
-              >
+              <Link href="/signin" variant="body2" sx={{ alignSelf: "center" }}>
                 Sign in
               </Link>
             </Typography>
